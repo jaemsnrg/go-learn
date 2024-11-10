@@ -11,12 +11,17 @@ import (
 	util "github.com/jaemsnrg/go-learn/utils/testing"
 )
 
-func createRandomAccount() CreateAccountParams {
-	return CreateAccountParams{
+func CreateRandomAccount() (Account, error) {
+	args := CreateAccountParams{
 		Owner:    util.RandomOwner(),
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
+
+	account, err := testQueries.CreateAccount(context.Background(), args)
+
+	return account, err
+
 }
 
 func TestCreateAccount(t *testing.T) {
@@ -39,7 +44,7 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestGetAccount(t *testing.T) {
-	account1, err := testQueries.CreateAccount(context.Background(), createRandomAccount())
+	account1, err := CreateRandomAccount()
 	require.NoError(t, err)
 
 	account2, err := testQueries.GetAccount(context.Background(), account1.ID)
@@ -55,7 +60,7 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestUpdateAccount(t *testing.T) {
-	account1, err := testQueries.CreateAccount(context.Background(), createRandomAccount())
+	account1, err := CreateRandomAccount()
 	require.NoError(t, err)
 
 	var newBalance = util.RandomMoney()
@@ -75,7 +80,7 @@ func TestUpdateAccount(t *testing.T) {
 }
 
 func TestDeleteAccount(t *testing.T) {
-	account1, err := testQueries.CreateAccount(context.Background(), createRandomAccount())
+	account1, err := CreateRandomAccount()
 	require.NoError(t, err)
 
 	err = testQueries.DeleteAccount(context.Background(), account1.ID)
@@ -89,7 +94,7 @@ func TestDeleteAccount(t *testing.T) {
 
 func TestListAccount(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		testQueries.CreateAccount(context.Background(), createRandomAccount())
+		CreateRandomAccount()
 	}
 
 	arg := ListAccountsParams{
